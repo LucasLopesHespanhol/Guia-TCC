@@ -1,0 +1,30 @@
+name: reactive-task-api
+
+services:
+  rabbitmq:
+    image: rabbitmq:4.3.6-management
+    hostname: rabbitmq-reactive
+    ports:
+      - "127.0.0.1:5673:5672"
+      - "127.0.0.1:15673:15672"
+      - "127.0.0.1:15693:15692"   # metricas do RabbitMQ para o Prometheus
+    environment:
+      RABBITMQ_DEFAULT_USER: tcc
+      RABBITMQ_DEFAULT_PASS: "${RABBITMQ_PASSWORD:?Defina RABBITMQ_PASSWORD no .env}"
+      RABBITMQ_DEFAULT_VHOST: reactive
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+      - ./infra/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - ./infra/rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins:ro
+    cpus: 3.0
+    mem_limit: 1g
+    restart: "no"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+volumes:
+  rabbitmq-data:

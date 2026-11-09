@@ -1,0 +1,34 @@
+info:
+  name: "03 - List tasks"
+  type: http
+  seq: 3
+
+http:
+  method: GET
+  url: "http://localhost:8081/tarefas"
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        if (!bru.getVar("taskId")) {
+          throw new Error("Execute o passo anterior para obter taskId. Nao digite um id fixo.");
+        }
+    - type: tests
+      code: |-
+        test("200: lista ordenada contendo a tarefa criada", function () {
+          expect(res.status).to.equal(200);
+          expect(Array.isArray(res.body)).to.equal(true);
+          expect(res.body.some(task => task.id === Number(bru.getVar("taskId")))).to.equal(true);
+          res.body.forEach((task, index) => {
+            if (index > 0) expect(res.body[index - 1].id < task.id).to.equal(true);
+          });
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 20000
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

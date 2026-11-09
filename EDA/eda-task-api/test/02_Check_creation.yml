@@ -1,0 +1,42 @@
+info:
+  name: "02 - Check creation"
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: "http://localhost:8081/solicitacoes/{{createSubmissionId}}"
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        if (!bru.getVar("createSubmissionId")) {
+          throw new Error("Execute o passo anterior para obter createSubmissionId. Nao digite um id fixo.");
+        }
+    - type: after-response
+      code: |-
+        if (res.status === 200 && res.body && res.body.estado === "CONCLUIDA" && Number.isSafeInteger(res.body.tarefaId) && res.body.tarefaId > 0) {
+          bru.setVar("taskId", res.body.tarefaId);
+        }
+    - type: tests
+      code: |-
+        test("200: consulta do protocolo correto", function () {
+          expect(res.status).to.equal(200);
+          expect(res.body.id).to.equal(bru.getVar("createSubmissionId"));
+        });
+        test("CONCLUIDA: se REGISTRADA, envie somente este GET novamente", function () {
+          expect(res.body.estado).to.equal("CONCLUIDA");
+          expect(res.body.erro).to.equal(null);
+          expect(res.body.finalizadaEm).to.be.a("string");
+          const expected = Object.assign({ id: res.body.tarefaId }, {"titulo": "Manual EDA task", "descricao": "Created with Bruno", "prioridade": "MEDIA", "status": "ABERTA", "dataLimite": "2020-01-15"});
+          expect(res.body.resultado).to.deep.equal(expected);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 20000
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

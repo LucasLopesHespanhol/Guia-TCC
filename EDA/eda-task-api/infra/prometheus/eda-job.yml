@@ -1,0 +1,9 @@
+# Trecho para acrescentar em scrape_configs do prometheus.yml existente
+# (C:/Users/lucas/Tools/prometheus/prometheus.yml), ao lado do job reactive-task-api.
+# Mesmo intervalo de coleta usado na Reativa nas rodadas finais (1 s).
+  - job_name: eda-task-api
+    metrics_path: /actuator/prometheus
+    scrape_interval: 1s
+    scrape_timeout: 1s
+    static_configs:
+      - targets: ['127.0.0.1:8081']

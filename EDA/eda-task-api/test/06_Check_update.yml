@@ -1,0 +1,40 @@
+info:
+  name: "06 - Check update"
+  type: http
+  seq: 6
+
+http:
+  method: GET
+  url: "http://localhost:8081/solicitacoes/{{updateSubmissionId}}"
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        if (!bru.getVar("updateSubmissionId")) {
+          throw new Error("Execute o passo anterior para obter updateSubmissionId. Nao digite um id fixo.");
+        }
+    - type: tests
+      code: |-
+        test("200: consulta do protocolo correto", function () {
+          expect(res.status).to.equal(200);
+          expect(res.body.id).to.equal(bru.getVar("updateSubmissionId"));
+        });
+        test("CONCLUIDA: se REGISTRADA, envie somente este GET novamente", function () {
+          expect(res.body.estado).to.equal("CONCLUIDA");
+          expect(res.body.erro).to.equal(null);
+          expect(res.body.finalizadaEm).to.be.a("string");
+          const expected = Object.assign({ id: res.body.tarefaId }, {"titulo": "Updated EDA task", "descricao": null, "prioridade": "ALTA", "status": "CONCLUIDA", "dataLimite": "2020-03-10"});
+          expect(res.body.resultado).to.deep.equal(expected);
+        });
+        test("id da tarefa preservado", function () {
+          expect(res.body.tarefaId).to.equal(Number(bru.getVar("taskId")));
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 20000
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

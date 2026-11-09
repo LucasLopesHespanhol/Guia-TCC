@@ -1,0 +1,37 @@
+info:
+  name: "08 - Delete task"
+  type: http
+  seq: 8
+
+http:
+  method: DELETE
+  url: "http://localhost:8081/tarefas/{{taskId}}"
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        if (!bru.getVar("taskId")) {
+          throw new Error("Execute o passo anterior para obter taskId. Nao digite um id fixo.");
+        }
+        bru.setVar("deleteSubmissionId", "");
+    - type: after-response
+      code: |-
+        if (res.status === 202 && res.body && res.body.id) {
+          bru.setVar("deleteSubmissionId", res.body.id);
+        }
+    - type: tests
+      code: |-
+        test("202: pedido aceito com protocolo", function () {
+          expect(res.status).to.equal(202);
+          expect(res.body.id).to.be.a("string");
+          expect(res.getHeader("Location")).to.equal("/solicitacoes/" + res.body.id);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 20000
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

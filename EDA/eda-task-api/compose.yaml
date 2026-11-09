@@ -1,0 +1,27 @@
+services:
+  rabbitmq:
+    image: rabbitmq:4.3.6-management
+    hostname: rabbitmq-eda
+    ports:
+      - "127.0.0.1:5672:5672"
+      - "127.0.0.1:15672:15672"
+      - "127.0.0.1:15692:15692"   # metricas do RabbitMQ para o Prometheus
+    environment:
+      RABBITMQ_DEFAULT_USER: tcc
+      RABBITMQ_DEFAULT_PASS: "${RABBITMQ_PASSWORD:?Defina RABBITMQ_PASSWORD no .env}"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+      - ./infra/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - ./infra/rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins:ro
+    cpus: 3.0
+    mem_limit: 1g
+    restart: "no"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+volumes:
+  rabbitmq-data:

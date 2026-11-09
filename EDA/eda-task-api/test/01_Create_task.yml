@@ -1,0 +1,47 @@
+info:
+  name: "01 - Create task"
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "http://localhost:8081/tarefas"
+  body:
+    type: json
+    data: |-
+      {
+        "titulo": "Manual EDA task",
+        "descricao": "Created with Bruno",
+        "prioridade": "MEDIA",
+        "status": "ABERTA",
+        "dataLimite": "2020-01-15"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        bru.setVar("taskId", "");
+        bru.setVar("createSubmissionId", "");
+        bru.setVar("updateSubmissionId", "");
+        bru.setVar("deleteSubmissionId", "");
+    - type: after-response
+      code: |-
+        if (res.status === 202 && res.body && res.body.id) {
+          bru.setVar("createSubmissionId", res.body.id);
+        }
+    - type: tests
+      code: |-
+        test("202: pedido aceito com protocolo", function () {
+          expect(res.status).to.equal(202);
+          expect(res.body.id).to.be.a("string");
+          expect(res.getHeader("Location")).to.equal("/solicitacoes/" + res.body.id);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 20000
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: true

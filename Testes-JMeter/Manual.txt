@@ -1,0 +1,39 @@
+1. Abra o Docker desktop e inicie o serviço do rabbitMQ que irá testar, EDA ou Reativa.
+
+################# Preparar API ########################################################
+
+Recomendo e testei usando CMD já que o intellij se mostrava consumir recursos que acabaram faltando na máquina.
+
+Vá até o caminho da API e gere o jar com o seguinte comando:
+
+ - mvnw.cmd -q -DskipTests package
+
+Depois entre na pasta target usando (cd target) e verifique se o arquivos .jar da aplicação foi gerado. Para iniciar a aplicação use:
+
+ - java -jar .\<nome-do-jar>.jar  (Provavelmente o nome será eda-task-api-0.0.1-SNAPSHOT.jar) verifique primeiro.
+
+Assim API e Docker estarão rodando.
+
+#######################################################################################
+
+Verifique se o prometheus está rodando, junto o script que exporta as métricas da máquina.
+
+Você pode ir até onde extraiu-o e clicar no executável, ou abrir cmd na pasta e rodas:
+
+ - .\prometheus.exe
+
+Não feche ele enquanto realiza os testes, ele guarda todas as métricas que serão visualizadas no Grafana.
+
+#######################################################################################
+
+Setar max de heap para o JMeter(Muito importante para ele não travar):
+
+set HEAP=-Xms1g -Xmx2g  
+
+Teste inicial EDA:
+
+C:\Users\User\Tools\jmeter\bin\jmeter.bat -n -t EDA-Inicial.jmx -Jhttpsampler.max_bytes_to_store_per_request=20000 -l resultados\Eda\Inicial\resultado.jtl
+
+Teste completo EDA:
+
+C:\Users\User\Tools\jmeter\bin\jmeter.bat -n -t EDA.jmx -Jhttpsampler.max_bytes_to_store_per_request=20000 -l resultados\Eda\resultado.jtl -e -o resultados\Eda\html
