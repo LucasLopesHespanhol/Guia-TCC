@@ -55,7 +55,28 @@ O instalador pode ser baixado em: [Prometheus](https://prometheus.io/download/)
 Quando extraiar, dentro da pasta terá um arquivo chamado prometheus.yml, abra e substitua por isso:
 
 ```h
-aaaaa
+global:
+  scrape_interval: 1s
+  scrape_timeout: 1s
+
+scrape_configs:
+  - job_name: reactive-task-api
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets: ['localhost:8080']
+
+  - job_name: eda-task-api
+    metrics_path: /actuator/prometheus
+    scrape_interval: 1s
+    scrape_timeout: 1s
+    static_configs:
+      - targets: ['127.0.0.1:8081']
+
+  - job_name: notebook
+    scrape_interval: 2s
+    scrape_timeout: 2s
+    static_configs:
+      - targets: ['127.0.0.1:9182']
 ```
 
 ## 5. Grafana
