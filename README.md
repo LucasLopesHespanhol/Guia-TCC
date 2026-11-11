@@ -5,7 +5,7 @@ Descrição para preparar o ambiente e rodar os testes nas arquiteturas :)
 
 ## 1. Java 17
 
-A versão do java utilizado foi a 17, então caso não tenha é necessário instalar a JDK.
+A versão do java utilizado foi a 17, então caso não tenha é necessário instalar o JDK.
 
 Para verificar é possível rodando no terminal:
 
