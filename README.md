@@ -3,6 +3,8 @@
 
 Descrição para preparar o ambiente e rodar os testes nas arquiteturas :)
 
+OBS: Uso windows 11 :(
+
 ## 1. Java 17
 
 A versão do java utilizado foi a 17, então caso não tenha é necessário instalar o JDK.
